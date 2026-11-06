@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#5b4ae8" />
+  <meta name="description" content="NPASmart AI - recognize, organize and convert document images into PDFs." />
+  <title>NPASmart AI | Document Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- OCR and PDF libraries. The app still lets you save a PDF if OCR is unavailable. -->
+  <script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script type="module" src="js/app.js"></script>
+</head>
+
+<body>
+  <section id="loginScreen" class="login-screen">
+    <div class="login-art">
+      <div class="art-orbit orbit-one"></div>
+      <div class="art-orbit orbit-two"></div>
+      <div class="art-card">
+        <div class="art-file-icon">PDF</div>
+        <div class="art-line wide"></div>
+        <div class="art-line"></div>
+        <div class="art-line short"></div>
+        <div class="art-stamp">ORIGINAL<br />PRESERVED</div>
+      </div>
+      <div class="login-art-copy"><span class="eyebrow light">SMART DOCUMENT WORKSPACE</span>
+        <h1>Your documents,<br />organized intelligently.</h1>
+        <p>Recognize document details, preserve the original page and keep every PDF easy to find.</p>
+      </div>
+    </div>
+    <div class="login-panel">
+      <div class="brand brand-login">
+        <div class="brand-mark">N</div>
+        <div><strong>NPASmart <span>AI</span></strong><small>DOCUMENT MANAGEMENT</small></div>
+      </div>
+      <div class="login-form-wrap">
+        <span class="eyebrow">ADMINISTRATOR ACCESS</span>
+        <h2>Welcome back</h2>
+        <p class="muted">Sign in to manage your documents.</p>
+        <form id="loginForm" class="form-stack">
+          <label for="username">Username</label><input id="username" name="username" autocomplete="username"
+            placeholder="Enter your username" required />
+          <label for="password">Password</label>
+          <div class="password-wrap">
+            <input id="password" name="password" type="password" autocomplete="current-password"
+              placeholder="Enter your password" required />
+            <!-- <button type="button" id="togglePassword" class="password-toggle" aria-label="Show password">Show</button> -->
+          </div>
+          <p id="loginError" class="form-error" role="alert"></p>
+          <button class="btn btn-primary btn-full" type="submit">Sign in <span aria-hidden="true">→</span>
+          </button>
+        </form>
+        <!-- <div class="demo-note"><strong>Prototype credentials</strong><span>Username: Admin &nbsp;·&nbsp; Password:
+            Admin</span></div>
+        <p class="login-footnote">Local prototype · Documents are stored in this browser.</p> -->
+      </div>
+    </div>
+  </section>
+
+  <div id="application" class="app-shell hidden">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">N</div>
+        <div><strong>NPASmart <span>AI</span></strong><small>DOCUMENT MANAGEMENT</small></div>
+      </div>
+      <div class="sidebar-label">WORKSPACE</div>
+      <nav class="side-nav" aria-label="Main navigation">
+        <button class="nav-link active" data-view="dashboard"><span class="nav-icon">▦</span> Overview</button>
+        <button class="nav-link" data-view="documents"><span class="nav-icon">▤</span> All documents <span
+            class="nav-count" id="navDocumentCount">0</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="storage-card">
+          <div class="storage-heading"><span>Browser storage</span><span id="storagePercent">0%</span></div>
+          <div class="storage-track"><span id="storageBar"></span></div><small id="storageText">Calculating local
+            usage…</small>
+        </div><button id="logoutButton" class="logout-button">↪ <span>Sign out</span></button>
+      </div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar"><button id="menuButton" class="icon-button menu-button" aria-label="Toggle menu">☰</button>
+        <div class="breadcrumb">Workspace <span>/</span> <strong id="pageName">Overview</strong></div>
+        <div class="topbar-right"><span class="status-dot"></span><span class="topbar-status">Local workspace</span>
+          <div class="avatar">A</div>
+        </div>
+      </header>
+      <div class="page-content">
+        <section id="dashboardView" class="view-section">
+          <div class="page-heading">
+            <div><span class="eyebrow">YOUR WORKSPACE</span>
+              <h1>Document overview</h1>
+              <p class="muted">Capture, recognize and organize documents in one place.</p>
+            </div><button class="btn btn-primary" id="topUploadButton">＋ Upload document</button>
+          </div>
+          <div class="stats-grid">
+            <article class="stat-card">
+              <div class="stat-icon purple">▤</div>
+              <div><span>Total documents</span><strong id="statDocuments">0</strong><small>Saved in this browser</small>
+              </div>
+            </article>
+            <article class="stat-card">
+              <div class="stat-icon green">✓</div>
+              <div><span>PDF conversions</span><strong id="statPdfs">0</strong><small>Ready to download</small></div>
+            </article>
+            <article class="stat-card">
+              <div class="stat-icon orange">◷</div>
+              <div><span>Added this month</span><strong id="statMonth">0</strong><small>Based on save date</small></div>
+            </article>
+          </div>
+          <div class="workspace-grid">
+            <section class="panel upload-panel">
+              <div class="panel-heading">
+                <div>
+                  <h2>Add a document</h2>
+                  <p class="muted">Upload a clear image or use your camera.</p>
+                </div>
+                <span class="pill pill-soft">OCR enabled</span>
+              </div>
+              <div id="dropZone" class="drop-zone" tabindex="0" role="button" aria-label="Choose document images">
+                <div class="upload-symbol">↑</div>
+                <h3>Drop document images here</h3>
+                <p>or <button id="browseButton" class="text-button" type="button">browse files</button> from your device
+                </p><small>JPG, JPEG or PNG · 10 MB maximum per image</small>
+                <input id="fileInput" type="file" accept="image/jpeg,image/png" multiple hidden />
+              </div>
+              <div class="upload-actions"><button id="cameraButton" class="btn btn-secondary" type="button">▣ Capture
+                  with camera</button><span class="muted tiny">Recommended image size: 2.5 MB or less</span></div>
+              <div id="selectionNotice" class="selection-notice hidden"></div>
+              <button id="processButton" class="btn btn-primary btn-full hidden" type="button">Recognize and review
+                documents <span>→</span></button>
+              <div class="privacy-note"><span>◇</span>
+                <p><strong>Original image preservation</strong><br />OCR is used only to suggest a title and date. The
+                  PDF is generated from the untouched uploaded image.</p>
+              </div>
+            </section>
+            <section class="panel recent-panel">
+              <div class="panel-heading">
+                <div>
+                  <h2>Recently added</h2>
+                  <p class="muted">Your latest saved documents.</p>
+                </div><button class="text-button" id="seeAllButton" type="button">View all →</button>
+              </div>
+              <div id="recentDocuments" class="document-list">
+                <div class="empty-state compact">
+                  <div class="empty-icon">▤</div><strong>No documents yet</strong>
+                  <p>Your converted documents will appear here.</p>
+                </div>
+              </div>
+            </section>
+          </div>
+          <section class="tip-banner">
+            <p>Place the page on a flat surface, keep all four corners visible and ensure the text is readable. Stamps
+              and signatures remain part of the original PDF.</p>
+          </section>
+        </section>
+
+        <section id="documentsView" class="view-section hidden">
+          <div class="page-heading">
+            <div><span class="eyebrow">DOCUMENT LIBRARY</span>
+              <h1>All documents</h1>
+              <p class="muted">Search, preview, download or remove saved documents.</p>
+            </div><button class="btn btn-primary" id="libraryUploadButton">＋ Upload document</button>
+          </div>
+          <div class="panel library-panel">
+            <div class="library-toolbar">
+              <div class="search-box"><span>⌕</span><input id="searchInput" type="search"
+                  placeholder="Search by document title…" aria-label="Search documents" /></div><input id="dateFilter"
+                class="date-filter" type="date" aria-label="Filter by document date" /><button id="clearFiltersButton"
+                class="btn btn-quiet" type="button">Clear filters</button>
+            </div>
+            <div id="libraryDocuments" class="document-list">
+              <div class="empty-state">
+                <div class="empty-icon">▤</div><strong>No documents found</strong>
+                <p>Upload an image to create your first PDF.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+      <footer class="app-footer">
+        <span> © 2026 Dev_Blessing - NPA ICT Unit (Delta Port)</span> 
+          <span class="footer-dot">·</span>
+        </span>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Review extracted information before creating the PDF. -->
+  <div id="reviewModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="reviewTitle">
+    <div class="modal-backdrop" data-close="review"></div>
+    <div class="modal-card review-card">
+      <div class="modal-header">
+        <div>
+          <span class="eyebrow">RECOGNITION REVIEW</span>
+          <h2 id="reviewTitle">Review document details</h2>
+        </div>
+        <button class="icon-button" data-close="review" aria-label="Close">×</button>
+      </div>
+      <div class="review-layout">
+        <div class="image-preview-wrap">
+          <img id="reviewImage" alt="Original uploaded document preview" />
+          <span class="preview-caption">Original image preview</span>
+        </div>
+        <div class="review-fields">
+          <div id="ocrStatus" class="ocr-status">Preparing text recognition…</div>
+          <label for="documentTitle">PDF filename</label><input id="documentTitle" maxlength="120"
+            placeholder="Document title" />
+          <small class="field-help">The .pdf extension is added automatically.</small>
+          <label for="documentDate">Date shown on document</label>
+          <input id="documentDate" type="date" />
+          <small id="dateHelp" class="field-help">Confirm the date printed on the document. It controls the folder
+            location.</small>
+          <label for="recognizedText">Recognized text (for reference)</label>
+          <textarea id="recognizedText" rows="5" readonly placeholder="Recognized text will appear here…"></textarea>
+          <p class="preservation-note">✓ The PDF uses the original image. OCR text is not written onto or used to edit
+            the page.</p>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button id="skipReviewButton" class="btn btn-quiet" type="button">Skip this image</button>
+        <button id="saveDocumentButton" class="btn btn-primary" type="button">Convert and save PDF →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Camera capture modal -->
+  <div id="cameraModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="cameraTitle">
+    <div class="modal-backdrop" data-close="camera"></div>
+    <div class="modal-card camera-card">
+      <div class="modal-header">
+        <div><span class="eyebrow">CAMERA CAPTURE</span>
+          <h2 id="cameraTitle">Capture a document</h2>
+        </div>
+        <button class="icon-button" data-close="camera" aria-label="Close">×</button>
+      </div>
+      <video id="cameraVideo" autoplay playsinline></video>
+      <p id="cameraMessage" class="muted tiny">Allow camera access when your browser asks.</p>
+      <div class="modal-actions">
+        <button id="stopCameraButton" class="btn btn-quiet" type="button">Cancel</button>
+        <button id="captureButton" class="btn btn-primary" type="button" disabled>Capture image</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PDF preview modal -->
+  <div id="previewModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="previewTitle">
+    <div class="modal-backdrop" data-close="preview"></div>
+    <div class="modal-card preview-card">
+      <div class="modal-header">
+        <div><span class="eyebrow">DOCUMENT PREVIEW</span>
+          <h2 id="previewTitle">PDF preview</h2>
+        </div>
+        <button class="icon-button" data-close="preview" aria-label="Close">×</button>
+      </div>
+      <iframe id="pdfFrame" title="PDF document preview"></iframe>
+      <div class="modal-actions">
+        <button class="btn btn-quiet" data-close="preview" type="button">Close</button>
+        <a id="previewDownload" class="btn btn-primary" download>Download PDF ↓</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+</body>
+
+</html>
