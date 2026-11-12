@@ -33,7 +33,7 @@
       </div>
       <div class="login-art-copy"><span class="eyebrow light">SMART DOCUMENT WORKSPACE</span>
         <h1>Your documents,<br />organized intelligently.</h1>
-        <p>Recognize document details, preserve the original page and keep every PDF easy to find.</p>
+        <p>Clean up document images, recognize key details and keep every PDF easy to find.</p>
       </div>
     </div>
     <div class="login-panel">
@@ -138,8 +138,7 @@
               <button id="processButton" class="btn btn-primary btn-full hidden" type="button">Recognize and review
                 documents <span>→</span></button>
               <div class="privacy-note"><span>◇</span>
-                <p><strong>Original image preservation</strong><br />OCR is used only to suggest a title and date. The
-                  PDF is generated from the untouched uploaded image.</p>
+                <p><strong>Professional document cleanup</strong><br />Page edges are detected and corrected where possible. Text is enhanced for contrast while colored stamps are retained.</p>
               </div>
             </section>
             <section class="panel recent-panel">
@@ -173,9 +172,14 @@
           <div class="panel library-panel">
             <div class="library-toolbar">
               <div class="search-box"><span>⌕</span><input id="searchInput" type="search"
-                  placeholder="Search by document title…" aria-label="Search documents" /></div><input id="dateFilter"
+                  placeholder="Search subject, reference or text…" aria-label="Search subjects, references and recognized text" /></div>
+              <select id="folderFilter" class="date-filter" aria-label="Filter by folder">
+                <option value="">All folders</option>
+              </select>
+              <input id="dateFilter"
                 class="date-filter" type="date" aria-label="Filter by document date" /><button id="clearFiltersButton"
                 class="btn btn-quiet" type="button">Clear filters</button>
+              <button id="createFolderButton" class="btn btn-secondary" type="button">＋ New folder</button>
             </div>
             <div id="libraryDocuments" class="document-list">
               <div class="empty-state">
@@ -207,27 +211,59 @@
       </div>
       <div class="review-layout">
         <div class="image-preview-wrap">
-          <img id="reviewImage" alt="Original uploaded document preview" />
-          <span class="preview-caption">Original image preview</span>
+          <img id="reviewImage" alt="Cleaned document preview" />
+          <span class="preview-caption">Processed preview used for the PDF</span>
         </div>
         <div class="review-fields">
           <div id="ocrStatus" class="ocr-status">Preparing text recognition…</div>
-          <label for="documentTitle">PDF filename</label><input id="documentTitle" maxlength="120"
-            placeholder="Document title" />
-          <small class="field-help">The .pdf extension is added automatically.</small>
-          <label for="documentDate">Date shown on document</label>
+          <label for="documentTitle">Subject / file name</label><input id="documentTitle" maxlength="120"
+            placeholder="e.g. Application of Casual Leave" />
+          <small class="field-help">The detected Subject is used as the PDF filename. Confirm or edit it.</small>
+          <label for="documentReference">Reference number</label>
+          <input id="documentReference" maxlength="80" placeholder="Reference number (if shown)" />
+          <label for="documentDate">Date written on the document</label>
           <input id="documentDate" type="date" />
-          <small id="dateHelp" class="field-help">Confirm the date printed on the document. It controls the folder
-            location.</small>
+          <small id="dateHelp" class="field-help">Confirm the date printed on the document.</small>
+          <label for="documentFolder">Folder</label>
+          <div class="folder-assignment">
+            <select id="documentFolder"><option value="">No folder</option></select>
+            <button id="reviewCreateFolderButton" class="btn btn-quiet" type="button">＋ Create</button>
+          </div>
           <label for="recognizedText">Recognized text (for reference)</label>
           <textarea id="recognizedText" rows="5" readonly placeholder="Recognized text will appear here…"></textarea>
-          <p class="preservation-note">✓ The PDF uses the original image. OCR text is not written onto or used to edit
-            the page.</p>
+          <p class="preservation-note">✓ The processed image is used in the PDF. Colored marks are retained when detected; review the result before saving.</p>
+        </div>
+      </div>
+      <div class="crop-editor hidden" id="cropEditor">
+        <p class="muted tiny">Drag across the page to select the area to keep. This is a rectangular crop.</p>
+        <canvas id="cropCanvas" aria-label="Select the page area to keep"></canvas>
+        <div class="crop-actions">
+          <button id="cancelCropButton" class="btn btn-quiet" type="button">Cancel crop</button>
+          <button id="applyCropButton" class="btn btn-primary" type="button">Apply crop</button>
         </div>
       </div>
       <div class="modal-actions">
         <button id="skipReviewButton" class="btn btn-quiet" type="button">Skip this image</button>
+        <button id="restoreImageButton" class="btn btn-quiet" type="button">Restore full image</button>
+        <button id="adjustCropButton" class="btn btn-secondary" type="button">Adjust crop</button>
         <button id="saveDocumentButton" class="btn btn-primary" type="button">Convert and save PDF →</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="folderModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="folderModalTitle">
+    <div class="modal-backdrop" data-close="folder"></div>
+    <div class="modal-card folder-modal-card">
+      <div class="modal-header">
+        <div><span class="eyebrow">DOCUMENT ORGANIZATION</span><h2 id="folderModalTitle">Create a folder</h2></div>
+        <button class="icon-button" data-close="folder" aria-label="Close">×</button>
+      </div>
+      <label for="folderName">Folder name</label>
+      <input id="folderName" maxlength="80" placeholder="e.g. Leave Applications" />
+      <p id="folderError" class="form-error" role="alert"></p>
+      <div class="modal-actions">
+        <button class="btn btn-quiet" data-close="folder" type="button">Cancel</button>
+        <button id="saveFolderButton" class="btn btn-primary" type="button">Create folder</button>
       </div>
     </div>
   </div>

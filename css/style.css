@@ -1026,6 +1026,22 @@ button:disabled {
     font-size: 10px
 }
 
+.folder-assignment {
+    display: flex;
+    gap: 8px
+}
+
+.folder-assignment select {
+    flex: 1;
+    min-width: 0
+}
+
+.folder-assignment .btn {
+    padding: 0 11px;
+    white-space: nowrap;
+    font-size: 10px
+}
+
 .library-panel .document-list {
     padding: 8px 0 0
 }
@@ -1125,6 +1141,58 @@ button:disabled {
 
 .review-fields input {
     padding: 10px 11px
+}
+
+.review-fields select,
+.folder-modal-card input {
+    width: 100%;
+    padding: 10px 11px
+}
+
+.folder-modal-card {
+    width: min(440px, 100%)
+}
+
+.folder-modal-card label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 6px
+}
+
+.folder-modal-card .form-error {
+    min-height: 16px;
+    margin: 6px 0 0
+}
+
+.crop-editor {
+    margin-top: 16px;
+    padding: 12px;
+    background: #f7f7fb;
+    border: 1px solid var(--line);
+    border-radius: 10px
+}
+
+.crop-editor p {
+    margin: 0 0 10px
+}
+
+.crop-editor canvas {
+    display: block;
+    max-width: 100%;
+    max-height: 58vh;
+    height: auto;
+    margin: 0 auto;
+    background: #fff;
+    touch-action: none;
+    cursor: crosshair
+}
+
+.crop-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 9px;
+    margin-top: 10px
 }
 
 .review-fields textarea {

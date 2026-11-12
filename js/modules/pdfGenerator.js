@@ -17,8 +17,8 @@ function getImageDimensions(dataUrl) {
 }
 
 /**
- * Embeds the original uploaded image as the only page content.
- * No crop, filter, OCR overlay, perspective correction or image enhancement is applied.
+ * Embeds the reviewed, processed document image as the only page content.
+ * OCR text is never added to or used to edit the page.
  */
 export async function imageToPdf(imageBlob) {
   if (!window.jspdf?.jsPDF) throw new Error('The PDF library did not load. Check your internet connection and reload the page.');

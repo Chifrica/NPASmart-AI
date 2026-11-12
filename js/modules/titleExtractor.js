@@ -5,6 +5,9 @@ function cleanLine(line) {
 }
 
 export function extractTitle(text, fallback = 'Untitled_Document') {
+  const subject = text.match(/^\s*subject\s*:\s*(.+)$/im);
+  const subjectText = subject?.[1]?.replace(/\s*(?:[,;|]\s*)?\b(?:date|ref(?:erence)?(?:\s+(?:no\.?|number))?)\s*[:#].*$/i, '').trim();
+  if (subjectText) return cleanLine(subjectText);
   const lines = text.split(/\r?\n/).map(cleanLine).filter(Boolean);
   const candidates = lines.map((line, index) => {
     const words = line.split(/\s+/).filter(Boolean);
@@ -25,4 +28,9 @@ export function extractTitle(text, fallback = 'Untitled_Document') {
   }).filter(Boolean).sort((a, b) => b.score - a.score || a.index - b.index);
 
   return candidates.length && candidates[0].score >= 3 ? candidates[0].line : fallback;
+}
+
+export function extractReferenceNumber(text) {
+  const match = text.match(/\b(?:our\s+)?(?:ref(?:erence)?|file)\.?\s*(?:(?:no|number)\.?\s*)?[:#-]?\s*([A-Z0-9][A-Z0-9/-]{2,})/i);
+  return match?.[1]?.trim() || '';
 }

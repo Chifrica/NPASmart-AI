@@ -4,7 +4,7 @@ export const APP_CONFIG = Object.freeze({
   recommendedImageBytes: 2.5 * 1024 * 1024,
   acceptedMimeTypes: ['image/jpeg', 'image/png'],
   databaseName: 'docusmart-ai-db',
-  databaseVersion: 1,
+  databaseVersion: 2,
   storeName: 'documents',
   ocrLanguage: 'eng'
 });

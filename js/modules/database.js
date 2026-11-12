@@ -18,8 +18,15 @@ function openDatabase() {
         store.createIndex('createdAt', 'createdAt', { unique: false });
         store.createIndex('title', 'title', { unique: false });
       }
+      if (!db.objectStoreNames.contains('folders')) {
+        db.createObjectStore('folders', { keyPath: 'id' });
+      }
     };
-    request.onsuccess = () => resolve(request.result);
+    request.onblocked = () => reject(new Error('Close other NPASmart AI tabs to finish upgrading local document storage.'));
+    request.onsuccess = () => {
+      request.result.onversionchange = () => request.result.close();
+      resolve(request.result);
+    };
     request.onerror = () => reject(request.error || new Error('Could not open the local document database.'));
   });
   return databasePromise;
@@ -62,5 +69,25 @@ export async function deleteDocument(id) {
     tx.objectStore(APP_CONFIG.storeName).delete(id);
     tx.oncomplete = resolve;
     tx.onerror = () => reject(tx.error || new Error('Could not delete document.'));
+  });
+}
+
+export async function getAllFolders() {
+  const db = await openDatabase();
+  return new Promise((resolve, reject) => {
+    const request = db.transaction('folders', 'readonly').objectStore('folders').getAll();
+    request.onsuccess = () => resolve((request.result || []).sort((a, b) => a.name.localeCompare(b.name)));
+    request.onerror = () => reject(request.error || new Error('Could not load folders.'));
+  });
+}
+
+export async function saveFolder(folder) {
+  const db = await openDatabase();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('folders', 'readwrite');
+    tx.objectStore('folders').put(folder);
+    tx.oncomplete = () => resolve(folder);
+    tx.onerror = () => reject(tx.error || new Error('Folder could not be saved.'));
+    tx.onabort = () => reject(tx.error || new Error('Folder creation was cancelled.'));
   });
 }
